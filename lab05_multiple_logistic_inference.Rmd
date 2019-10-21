@@ -1,0 +1,92 @@
+---
+title: "Lab07 - Multiple Logistic Regression Inference"
+author: "What's your name?"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<!-- Note: All R code has to go inbetween the line that looks like ```{r} and the line that looks like ```!! -->
+
+## Loading Packages
+
+Run the code chunk below to load packages needed for this lab.
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+```
+
+## Refugees
+
+In this lab we will examine data originally presented in
+
+Greene and Shaffer (1992). Leave to appeal and leave to commence judicial review in Canada's refugee-determination system: Is the process fair?  *International Journal of Refugee Law*, 4:71-83.
+
+The data were discussed again in
+
+Fox (1997). Applied Regression Analysis, Linear Models, and Related Methods.  Sage Publications, London.
+
+The following description of the data is from Fox (1997).
+
+"Greene and Shaffer (1992) analyzed decisions by the Canadian Federal Court of a Appeal on cases filed by refugee applicants who had been turned down by the Immigration and refugee Board.... Restricting our attention to the 10 (of 23) judges who were present on the court during the entire period of the study, and to countries of origin that produced at least 20 appeals during this period, we shall elaborate Green and Shaffer's analysis using a logistic regression.  The dependent variable is whether or not leave was granted to appeal the decision of the Refugee Board.  We shall examine a random subsample of cases for which an independent expert rted the merit of the case.  (The judge does not decide whether the applicant is granted refugee status; if the case has any merit, an appeal should be granted.)  ... The principle object of the analysis is to determine whether the substantial differences among the judges in their rates of granitng leave to appeal can be explained by differences in characteristics of the cases [they heard].  [T]he cases were assigned to the judges not at random, but on a rotating basis."
+
+The following R code reads the data in and does some minimal pre-processing.  The variables in the data set are as follows:
+
+* `case_id`: a unique identifier for each case
+* `judge`: the name of the judge who heard the case
+* `origin`: the country of origin of the refugee applicant
+* `independent_decision`: the recommendation made by the independent expert as to whether the case merits appeal
+* `judge_decision`: the judge's decision as to whether to grant an appeal
+* `case_language`: the language in which the case was heard
+* `claim_location`: the location of the court in which the case was heard
+* `logit_success`: The logit of the success rate for all cases from the applicant's nation decided during the period of the study (i.e., log(number of leaves granted / number of leaves denied))
+
+```{r}
+# read_table is provided by the readr package and can be used to read files
+# where columns are separated by whitespace
+refugees <- read_table("http://www.evanlray.com/data/fox/Greene.dat", col_names = FALSE)
+
+# set column names in refugees data frame
+colnames(refugees) <- c("case_id", "judge", "origin", "independent_decision", "judge_decision", "case_language", "claim_location", "logit_success")
+
+refugees <- refugees %>%
+  mutate(
+    judge = factor(judge),
+    origin = factor(origin),
+    independent_decision = factor(independent_decision),
+    judge_decision = factor(judge_decision),
+    case_language = factor(case_language)
+  )
+
+head(refugees)
+```
+
+## Problem 1: Fit a model with `judge_decision` as the response variable and `judge`, `independent_decision`, `case_language`, `claim_location`, and `logit_success` as explanatory variables.  Examine a summary of the model fit.  Based on two separate hypothesis tests, does it seem like the `claim_location` variable is important for predicting the judge's decision?
+
+```{r}
+
+```
+
+## Problem 2: The real way to answer the question posed above is with a single test that compares the full model fit above with a reduced model that does not include the `claim_location` variable.  Perform this test now.  What is your conclusion?
+
+```{r}
+
+```
+
+## Problem 3: After controlling for an independent expert's recommendation, the language the case was heard in, and the overall success rate for all cases from the applicant's origin nation, are there statistically significant differences in the chances of granting an appeal for different judges?  To answer this question, fit a reduced model that includes only `independent_decision`, `case_language`, and `logit_success` as explanatory variables, then conduct a hypothesis test comparing this model to the one from problem 2 that also includes `judge`.  What is your conclusion?
+
+```{r}
+
+```
+
+## Problem 4: In your final model fit (whichever seems best based on the hypothesis tests you conducted above), what is the interpretation of the estimated coefficient for `logit_success`?
+
+Don't worry about the units of `logit_success` (your answer can start with "If logit_success increases by one unit...").
+
+
+
+## Problem 5: If you were an immigrant applying for refugee status, would you want your case to be heard by the judge named Iacobucci?  Explain by interpreting one of the coefficients in your final model fit.
