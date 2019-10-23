@@ -1,6 +1,6 @@
 ---
 title: "Lab07 - Multiple Logistic Regression Inference"
-author: "What's your name?"
+author: "Ruoyi"
 output: pdf_document
 ---
 
@@ -18,6 +18,9 @@ Run the code chunk below to load packages needed for this lab.
 library(readr)
 library(dplyr)
 library(ggplot2)
+library(GGally)
+library(gridExtra)
+library(caret)
 ```
 
 ## Refugees
@@ -68,25 +71,48 @@ head(refugees)
 ## Problem 1: Fit a model with `judge_decision` as the response variable and `judge`, `independent_decision`, `case_language`, `claim_location`, and `logit_success` as explanatory variables.  Examine a summary of the model fit.  Based on two separate hypothesis tests, does it seem like the `claim_location` variable is important for predicting the judge's decision?
 
 ```{r}
-
+fit_1<-train(
+  form=judge_decision~judge+independent_decision+case_language+claim_location+logit_success,
+  data=refugees,
+  family="binomial",
+  method="glm",
+  trControl=trainControl(method="none"))
+summary(fit_1)
 ```
-
+When the claim is at a location other than Toronto,p value is 0.077981 >0.05, so we have weak to nothing statistical significance. If claim location is at Toronto, p value is 0.118579>0.1, there is no statistical significance.It is not important. 
 ## Problem 2: The real way to answer the question posed above is with a single test that compares the full model fit above with a reduced model that does not include the `claim_location` variable.  Perform this test now.  What is your conclusion?
-
+There is no significant difference for different models with or without claim location according to the anova output. 
 ```{r}
+fit_2<-train(
+  form=judge_decision~judge+independent_decision+case_language+logit_success,
+  data=refugees,
+  family="binomial",
+  method="glm",
+  trControl=trainControl(method="none"))
+summary(fit_2)
 
+anova(fit_1$finalModel,fit_2$finalModel)
 ```
 
 ## Problem 3: After controlling for an independent expert's recommendation, the language the case was heard in, and the overall success rate for all cases from the applicant's origin nation, are there statistically significant differences in the chances of granting an appeal for different judges?  To answer this question, fit a reduced model that includes only `independent_decision`, `case_language`, and `logit_success` as explanatory variables, then conduct a hypothesis test comparing this model to the one from problem 2 that also includes `judge`.  What is your conclusion?
-
+There is a significant difference for different models with or without judges according to the anova output. 
 ```{r}
-
+fit_3<-train(
+  form=judge_decision~independent_decision+case_language+logit_success,
+  data=refugees,
+  family="binomial",
+  method="glm",
+  trControl=trainControl(method="none"))
+summary(fit_3)
+anova(fit_3$finalModel,fit_2$finalModel)
 ```
 
 ## Problem 4: In your final model fit (whichever seems best based on the hypothesis tests you conducted above), what is the interpretation of the estimated coefficient for `logit_success`?
 
 Don't worry about the units of `logit_success` (your answer can start with "If logit_success increases by one unit...").
 
-
+Model 2
+If the unit of logit success increases by one unit while holding other variables constant, the odd of getting a no is 4.546601(exp(1.51438)) times as big. 
 
 ## Problem 5: If you were an immigrant applying for refugee status, would you want your case to be heard by the judge named Iacobucci?  Explain by interpreting one of the coefficients in your final model fit.
+Yes, because my odd of getting a no 0.077(exp(-2.56776 )) times as big while holding other variables constant 
